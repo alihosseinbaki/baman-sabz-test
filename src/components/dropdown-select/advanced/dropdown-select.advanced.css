@@ -1,0 +1,13 @@
+.dropdown__select {
+    position: relative;
+    min-width: 400px;
+}
+
+
+/* mobile devices */
+@media (max-width: 576px) {
+    .dropdown__select {
+        min-width: 200px;
+        width: 100%;
+    }
+}
