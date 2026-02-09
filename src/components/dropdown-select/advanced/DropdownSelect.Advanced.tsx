@@ -6,44 +6,81 @@ import {
 } from "@headlessui/react";
 import { CheckIcon } from '@heroicons/react/20/solid';
 import clsx from 'clsx'
-import {useMemo, useState} from "react";
+import {Fragment, useCallback, useEffect, useMemo, useState} from "react";
+import type {ReactElement} from "react";
 import {ChevronDownIcon} from "@heroicons/react/16/solid";
 import "./dropdown-select.advanced.css";
 import {CheckboxField} from "../../checkbox-field/CheckboxField.tsx";
 
 
-interface IPeople {
+interface IMovie {
     id: number;
-    name: string;
+    title: string;
+    genre: string;
 }
 
-const people = [
-    { id: 1, name: 'Durward Reynolds' },
-    { id: 2, name: 'Kenton Towne' },
-    { id: 3, name: 'Therese Wunsch' },
-    { id: 4, name: 'Benedict Kessler' },
-    { id: 5, name: 'Katelyn Rohan' },
-]
+type GroupedMovies = {
+    genre: string;
+    items: IMovie[];
+};
 
-const DropdownSelectAdvanced = () => {
-    const [selectedPeople, setSelectedPeople] = useState<IPeople[]>([]);
+interface IDropdownSelectAdvancedProps {
+    items: IMovie[]
+}
+
+const DropdownSelectAdvanced = (
+    {
+        items
+    } : IDropdownSelectAdvancedProps) => {
+
+    const [selectedItems, setSelectedItems] = useState<IMovie[]>([]);
     const [query, setQuery] = useState('');
     const [selectedAll, setSelectedAll] = useState(false);
 
-    const filteredPeople = useMemo(() => {
+
+    const filteredMovies = useMemo(() => {
         return query === ''
-            ? people
-            : people.filter((person) => {
-                return person.name.toLowerCase().includes(query.toLowerCase())
+            ? items
+            : items.filter((movie) => {
+                return movie.title.toLowerCase().includes(query.toLowerCase())
             })
-    }, [query])
+    }, [query, items])
+
+    const groupedMovies: GroupedMovies[] = useMemo(() => {
+        return Object.values(
+            filteredMovies.reduce<Record<string, GroupedMovies>>((acc, movie) => {
+                if (!acc[movie.genre]) {
+                    acc[movie.genre] = {
+                        genre: movie.genre,
+                        items: []
+                    };
+                }
+
+                acc[movie.genre].items.push(movie);
+                return acc;
+            }, {})
+        )
+    }, [filteredMovies])
+
+    const selectAll = useCallback(() => {
+        setSelectedAll(!selectedAll);
+
+        if(selectedAll)
+            setSelectedItems([]);
+        else setSelectedItems(items);
+    }, [selectedAll, items])
+
+
+    useEffect(() => {
+        if(selectedItems.length !== items.length)
+            setSelectedAll(false);
+    }, [selectedItems, items])
 
     return (
         <Combobox
             multiple
-            value={selectedPeople}
-            virtual={{ options: filteredPeople }}
-            onChange={setSelectedPeople}
+            value={selectedItems}
+            onChange={setSelectedItems}
             onClose={() => setQuery('')}
         >
             <div className={"dropdown__select"}>
@@ -57,33 +94,63 @@ const DropdownSelectAdvanced = () => {
                     <ChevronDownIcon className="size-4 fill-white/60 group-data-hover:fill-white" />
                 </ComboboxButton>
 
+                <ComboboxOptions
+                    anchor="bottom"
+                    className="dropdown__options w-(--input-width) rounded-xl border border-white/5 bg-white/5 p-1 [--anchor-gap:--spacing(1)] empty:invisible transition duration-100 ease-in data-leave:data-closed:opacity-0 px-2"
+                >
+                    {
+                        groupedMovies.map((movie: GroupedMovies, index) => {
+                            const isLast = index === groupedMovies.length - 1;
+                            return(
+                                <Fragment key={movie.genre}>
+                                    <div className={"flex flex-col gap-2 group-movies"} >
+                                        <span className={"group-movies__title"}>{movie.genre}</span>
 
+                                        {
+                                            movie.items.map((item) => {
+                                                return(
+                                                    <ComboboxOption
+                                                        key={item.id}
+                                                        value={item}
+                                                        className="group flex cursor-default items-center w-full gap-2 rounded-lg px-3 py-1.5 select-none data-focus:bg-white/10"
+                                                    >
+                                                        <CheckIcon className={clsx('size-5', !selectedItems.includes(item) && 'invisible')} />
+                                                        {item.title}
+                                                    </ComboboxOption>
+                                                )
+                                            })
+                                        }
+                                    </div>
+
+                                    <>
+                                        {
+                                            isLast
+                                                ? <div className="footer">
+                                                    <CheckboxField
+                                                        label={"Select all"}
+                                                        checked={selectedAll}
+                                                        onChange={selectAll}
+                                                    />
+
+                                                    {
+                                                        selectedItems.length
+                                                            ? <div className={"text-sm"}>
+                                                                {selectedItems.length}  Selected
+                                                            </div>
+                                                            : <></>
+                                                    }
+                                                </div>
+                                                : <></>
+                                        }
+                                    </>
+                                </Fragment> as ReactElement
+                            )
+                        })
+                    }
+                </ComboboxOptions>
             </div>
 
-            <ComboboxOptions anchor="bottom" className="w-(--input-width) rounded-xl border border-white/5 bg-white/5 p-1 [--anchor-gap:--spacing(1)] empty:invisible transition duration-100 ease-in data-leave:data-closed:opacity-0 pb-8">
-                {({ option: person }) => (
-                    <ComboboxOption key={person.id} value={person} className="group flex cursor-default items-center w-full gap-2 rounded-lg px-3 py-1.5 select-none data-focus:bg-white/10">
-                        <CheckIcon className={clsx('size-5', !selectedPeople.includes(person) && 'invisible')} />
-                        {person.name}
-                    </ComboboxOption>
-                )}
-            </ComboboxOptions>
 
-            <div className="flex items-center absolute bottom-0">
-                {
-                    selectedPeople.length
-                        ? <span className={"text-sm"}>
-                    {selectedPeople.length}  Selected
-                </span>
-                        : <></>
-                }
-
-                <CheckboxField
-                   label={"Select all"}
-                   checked={selectedAll}
-                   onChange={setSelectedAll}
-                />
-            </div>
         </Combobox>
     );
 };
