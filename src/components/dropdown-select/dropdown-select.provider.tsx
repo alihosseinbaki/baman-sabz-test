@@ -47,7 +47,12 @@ export function DropdownSelectProvider({ children, items }: Props) {
         ) => {
             switch (action) {
                 case "setSelectedItems":
+                {
+                    if(payload !== items)
+                        setIsSelectedAll(false);
+
                     setSelectedItems(payload);
+                }
                     break;
                 case "setQuery":
                     setQuery(payload);

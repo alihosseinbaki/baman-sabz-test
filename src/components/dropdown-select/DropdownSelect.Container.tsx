@@ -1,4 +1,4 @@
-import {ReactElement, useCallback, useEffect, useMemo} from 'react';
+import {ReactElement, useCallback, useMemo} from 'react';
 import {Combobox, ComboboxButton, ComboboxInput, ComboboxOption, ComboboxOptions} from "@headlessui/react";
 import {ChevronDownIcon} from "@heroicons/react/16/solid";
 import {List, type RowComponentProps} from "react-window";
@@ -130,13 +130,7 @@ const DropdownSelectContainer = () => {
 
     const selectAll = useCallback(() => {
         dispatch("setIsSelectedAll", !isSelectedAll);
-    }, [isSelectedAll, items])
-
-
-    // useEffect(() => {
-    //     if(selectedItems.length !== items.length)
-    //         dispatch("setIsSelectedAll", false);
-    // }, [items])
+    }, [isSelectedAll])
 
     return (
         <Combobox<IMovie, true>
