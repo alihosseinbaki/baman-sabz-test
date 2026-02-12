@@ -6,6 +6,7 @@ import type {GroupedMovies, IMovie, Item, RowComponentType, RowProps} from "./dr
 import {useDropdownSelect} from "./dropdown-select.provider.tsx";
 import {CheckIcon} from "@heroicons/react/20/solid";
 import clsx from "clsx";
+import {CheckboxField} from "../checkbox-field/CheckboxField.tsx";
 
 
 const GROUP_HEIGHT = 28;
@@ -147,6 +148,7 @@ const DropdownSelectContainer = () => {
             <div className={"dropdown__select"}>
                 <ComboboxInput
                     aria-label="Assignees"
+                    placeholder={"Type your word"}
                     onChange={(e) => dispatch("setQuery", e.target.value)}
                     className={"w-full rounded-lg border-none bg-white/5 py-1.5 pr-8 pl-3 text-sm/6 text-white focus:not-data-focus:outline-none data-focus:outline-2 data-focus:-outline-offset-2 data-focus:outline-white/25"}
                 />
@@ -155,33 +157,35 @@ const DropdownSelectContainer = () => {
                     <ChevronDownIcon className="size-4 fill-white/60 group-data-hover:fill-white" />
                 </ComboboxButton>
 
-                <ComboboxOptions className="rounded-xl bg-white/5 p-2">
-                    <List<RowProps>
-                        rowComponent={RowComponent}
-                        rowCount={virtualItems.length}
-                        rowHeight={rowHeight}
-                        rowProps={{ items: virtualItems }}
-                        height={200}
-                        style={{maxHeight: "200px"}}
-                    />
+                <ComboboxOptions className="rounded-xl bg-white/5 p-2 dropdown__options">
+                    <>
+                        <List<RowProps>
+                            rowComponent={RowComponent}
+                            rowCount={virtualItems.length}
+                            rowHeight={rowHeight}
+                            rowProps={{ items: virtualItems }}
+                            height={200}
+                            style={{maxHeight: "200px"}}
+                        />
 
-                    {/*<>*/}
-                    {/*    <div className="footer">*/}
-                    {/*        <CheckboxField*/}
-                    {/*            label={"Select all"}*/}
-                    {/*            checked={selectedAll}*/}
-                    {/*            onChange={selectAll}*/}
-                    {/*        />*/}
+                        <>
+                            <div className="footer">
+                                <CheckboxField
+                                    label={"Select all"}
+                                    checked={isSelectedAll}
+                                    onChange={selectAll}
+                                />
 
-                    {/*        {*/}
-                    {/*            selectedItems.length*/}
-                    {/*                ? <div className={"text-sm"}>*/}
-                    {/*                    {selectedItems.length}  Selected*/}
-                    {/*                </div>*/}
-                    {/*                : <></>*/}
-                    {/*        }*/}
-                    {/*    </div>*/}
-                    {/*</>*/}
+                                {
+                                    selectedItems.length
+                                        ? <div className={"text-sm"}>
+                                            {selectedItems.length}  Selected
+                                        </div>
+                                        : <></>
+                                }
+                            </div>
+                        </>
+                    </>
                 </ComboboxOptions>
             </div>
         </Combobox>

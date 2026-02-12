@@ -6,12 +6,9 @@
 
 .dropdown__options {
     .footer {
-        position: sticky;
-        bottom: 5px;
         display: flex;
         justify-content: space-between;
-        background: #151515;
-        border-radius: 8px;
+        border-top: 1px solid #414141;
         padding: 9px 7px;
         margin: 14px 0 0 0;
     }
