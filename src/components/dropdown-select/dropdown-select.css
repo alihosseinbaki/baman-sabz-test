@@ -17,10 +17,9 @@
     }
 }
 
-.group-movies {
-    .group-movies__title {
-        color: #20df9ec4;
-    }
+.group-movies__title {
+    color: #20df9ec4;
+    text-align: start;
 }
 
 
