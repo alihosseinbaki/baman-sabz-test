@@ -1,4 +1,4 @@
-import {ReactElement, useCallback, useMemo} from 'react';
+import {ReactElement, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Combobox, ComboboxButton, ComboboxInput, ComboboxOption, ComboboxOptions} from "@headlessui/react";
 import {ChevronDownIcon} from "@heroicons/react/16/solid";
 import {List, type RowComponentProps} from "react-window";
@@ -7,6 +7,8 @@ import {useDropdownSelect} from "./dropdown-select.provider.tsx";
 import {CheckIcon} from "@heroicons/react/20/solid";
 import clsx from "clsx";
 import {CheckboxField} from "../checkbox-field/CheckboxField.tsx";
+import {useVirtualizer} from "@tanstack/react-virtual";
+import type {VirtualItem} from "@tanstack/virtual-core";
 
 
 const GROUP_HEIGHT = 28;
@@ -24,48 +26,62 @@ function rowHeight(index: number, { items }: RowProps) {
 }
 
 
-const RowComponent: RowComponentType = (
-    {
-        index,
-        items,
-        style
-    }: RowComponentProps<{ items: Item[] }>): ReactElement | null => {
-
-    const option = items[index];
+const VirtualRow = ({ virtualRow, item }: { virtualRow: VirtualItem, item: Item }) => {
     const {selectedItems} = useDropdownSelect();
 
-    if (option.type === 'group') {
+    if (item.type === 'group') {
         return (
             <div
-                style={style}
+                key={`group-${item.genre}`}
                 className="group-movies__title"
+                style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: `${virtualRow.size}px`,
+                    transform: `translateY(${virtualRow.start}px)`
+                }}
             >
-                {option.genre}
-            </div> as ReactElement
+                {item.genre}
+            </div>
         );
     }
 
     return (
-        <div style={style}>
+        <div
+            key={`movie-${item.movie.id}`}
+            style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: `${virtualRow.size}px`,
+                transform: `translateY(${virtualRow.start}px)`
+            }}
+        >
             <ComboboxOption
-                value={option.movie}
+                value={item.movie}
                 className="group flex items-center gap-2 rounded-lg px-3 py-1.5 data-focus:bg-white/10"
             >
                 <CheckIcon
                     className={clsx(
                         'size-5',
                         !selectedItems.some(
-                            i => i.id === option.movie.id
+                            i => i.id === item.movie.id
                         ) && 'invisible'
                     )}
                 />
-                {option.movie.title}
+                {item.movie.title}
             </ComboboxOption>
-        </div> as ReactElement
+        </div>
     );
 }
 
 const DropdownSelectContainer = () => {
+    const parentRef = useRef<HTMLDivElement | null>(null);
+    const [open, setOpen] = useState(false);
+
     const {
         items,
         selectedItems,
@@ -127,6 +143,21 @@ const DropdownSelectContainer = () => {
     }, [filteredGroups]);
 
 
+    const rowVirtualizer = useVirtualizer({
+        count: open ? virtualItems.length : 0,
+        getScrollElement: () => parentRef.current,
+        estimateSize: (index) =>
+            virtualItems[index].type === "group"
+                ? GROUP_HEIGHT
+                : ITEM_HEIGHT,
+        overscan: 6,
+    });
+
+    useEffect(() => {
+        if(virtualItems && open)
+            rowVirtualizer.measure();
+    }, [virtualItems, open]);
+
 
     const selectAll = useCallback(() => {
         dispatch("setIsSelectedAll", !isSelectedAll);
@@ -139,7 +170,7 @@ const DropdownSelectContainer = () => {
             onChange={(value: IMovie[]) => dispatch("setSelectedItems", value)}
             onClose={() => dispatch("setQuery", "")}
         >
-            <div className={"dropdown__select"}>
+            <div className={"dropdown__select"} data-open={open}>
                 <ComboboxInput
                     aria-label="Assignees"
                     placeholder={"Type your word"}
@@ -147,40 +178,49 @@ const DropdownSelectContainer = () => {
                     className={"w-full rounded-lg border-none bg-white/5 py-1.5 pr-8 pl-3 text-sm/6 text-white focus:not-data-focus:outline-none data-focus:outline-2 data-focus:-outline-offset-2 data-focus:outline-white/25"}
                 />
 
-                <ComboboxButton className="group absolute inset-y-0 right-0 px-2.5" style={{height: "36px"}}>
+                <span className={"group absolute inset-y-0 right-0 px-2.5 flex items-center justify-center"} style={{ height: "36px" }} onClick={() => setOpen(!open)}>
                     <ChevronDownIcon className="size-4 fill-white/60 group-data-hover:fill-white" />
-                </ComboboxButton>
+                </span>
 
-                <ComboboxOptions className="rounded-xl bg-white/5 p-2 dropdown__options">
-                    <>
-                        <List<RowProps>
-                            rowComponent={RowComponent}
-                            rowCount={virtualItems.length}
-                            rowHeight={rowHeight}
-                            rowProps={{ items: virtualItems }}
-                            height={200}
-                            style={{maxHeight: "200px"}}
+                <div className={"rounded-xl bg-white/5 p-2 pe-0 dropdown__options"}>
+                    <div
+                        ref={parentRef}
+                        className="max-h-[200px] overflow-auto"
+                    >
+                        <div
+                            style={{
+                                height: `${rowVirtualizer.getTotalSize()}px`,
+                                position: 'relative',
+                            }}
+                        >
+                            {
+                                rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                                    const item = virtualItems[virtualRow.index];
+
+                                    return(
+                                        <VirtualRow virtualRow={virtualRow} item={item} />
+                                    )
+                                })
+                            }
+                        </div>
+                    </div>
+
+                    <div className="footer">
+                        <CheckboxField
+                            label={"Select all"}
+                            checked={isSelectedAll}
+                            onChange={selectAll}
                         />
 
-                        <>
-                            <div className="footer">
-                                <CheckboxField
-                                    label={"Select all"}
-                                    checked={isSelectedAll}
-                                    onChange={selectAll}
-                                />
-
-                                {
-                                    selectedItems.length
-                                        ? <div className={"text-sm"}>
-                                            {selectedItems.length}  Selected
-                                        </div>
-                                        : <></>
-                                }
-                            </div>
-                        </>
-                    </>
-                </ComboboxOptions>
+                        {
+                            selectedItems.length
+                                ? <div className={"text-sm"}>
+                                    {selectedItems.length}  Selected
+                                </div>
+                                : <></>
+                        }
+                    </div>
+                </div>
             </div>
         </Combobox>
     );

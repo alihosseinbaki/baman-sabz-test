@@ -4,19 +4,43 @@
     width: 400px;
 }
 
+.dropdown__select[data-open="true"] .dropdown__options {
+    max-height: 279px;
+    opacity: 1;
+    transform: scaleY(1);
+
+    .footer {
+        opacity: 1;
+    }
+}
+
 .dropdown__options {
+    outline: none;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transform: scaleY(0.95);
+    transform-origin: top;
+    transition: max-height 0.15s ease-out, opacity 0.15s ease-out, transform 0.15s ease-out;
+
     .footer {
         display: flex;
         justify-content: space-between;
+        align-items: center;
         border-top: 1px solid #414141;
         padding: 9px 7px;
         margin: 14px 0 0 0;
+        opacity: 0;
     }
 }
 
 .group-movies__title {
     color: #20df9ec4;
     text-align: start;
+}
+
+button {
+    outline: none;
 }
 
 
