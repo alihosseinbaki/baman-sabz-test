@@ -147,7 +147,7 @@ const DropdownSelectContainer = () => {
                     className={"w-full rounded-lg border-none bg-white/5 py-1.5 pr-8 pl-3 text-sm/6 text-white focus:not-data-focus:outline-none data-focus:outline-2 data-focus:-outline-offset-2 data-focus:outline-white/25"}
                 />
 
-                <ComboboxButton className="group absolute inset-y-0 right-0 px-2.5">
+                <ComboboxButton className="group absolute inset-y-0 right-0 px-2.5" style={{height: "36px"}}>
                     <ChevronDownIcon className="size-4 fill-white/60 group-data-hover:fill-white" />
                 </ComboboxButton>
 
