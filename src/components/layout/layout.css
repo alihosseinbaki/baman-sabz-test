@@ -1,0 +1,16 @@
+.layout {
+    display: grid;
+    grid-template-columns: 232px 1fr;
+}
+
+.main {
+    padding: 1rem;
+}
+
+
+/* tablet devices */
+@media (max-width: 992px) {
+    .layout {
+        grid-template-columns: 200px 1fr;
+    }
+}

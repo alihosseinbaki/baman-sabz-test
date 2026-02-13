@@ -1,13 +1,13 @@
-import './App.css'
-import DropdownSelect from "./components/dropdown-select/DropdownSelect.tsx";
-import {movies} from "./db.ts";
+import './App.css';
+import Layout from "./components/layout/Layout.tsx";
+import {Outlet} from "react-router";
 
 function App() {
 
   return (
-    <>
-      <DropdownSelect items={movies} />
-    </>
+    <Layout>
+        <Outlet/>
+    </Layout>
   )
 }
 

@@ -220,7 +220,7 @@ const DropdownSelectContainer = () => {
                                         </div>
                                     </div>
 
-                                    <div className="footer">
+                                    <div className="dropdown__footer">
                                         <CheckboxField
                                             label={"Select all"}
                                             checked={isSelectedAll}

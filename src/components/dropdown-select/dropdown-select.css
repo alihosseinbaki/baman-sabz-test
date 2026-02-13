@@ -9,7 +9,7 @@
     opacity: 1;
     transform: scaleY(1);
 
-    .footer {
+    .dropdown__footer {
         opacity: 1;
     }
 }
@@ -24,7 +24,7 @@
     transition: max-height 0.15s ease-out, opacity 0.15s ease-out, transform 0.15s ease-out;
     margin-top: 4px;
 
-    .footer {
+    .dropdown__footer {
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -36,7 +36,7 @@
 }
 
 .group-movies__title {
-    color: #20df9ec4;
+    color: var(--primary);
     text-align: start;
 }
 
