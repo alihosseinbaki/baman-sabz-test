@@ -1,5 +1,5 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {Combobox, ComboboxInput, ComboboxOption} from "@headlessui/react";
+import {Combobox, ComboboxInput, ComboboxOption, ComboboxOptions} from "@headlessui/react";
 import {ChevronDownIcon} from "@heroicons/react/16/solid";
 import type {GroupedMovies, IMovie, Item} from "./dropdown-select.types.ts";
 import {useDropdownSelect} from "./dropdown-select.provider.tsx";
@@ -68,6 +68,7 @@ const VirtualRow = ({ virtualRow, item }: { virtualRow: VirtualItem, item: Item 
 const DropdownSelectContainer = () => {
     const parentRef = useRef<HTMLDivElement | null>(null);
     const [open, setOpen] = useState(false);
+    const preventClick = useRef(false);
 
     const {
         items,
@@ -162,67 +163,85 @@ const DropdownSelectContainer = () => {
             multiple
             value={selectedItems}
             onChange={(value: IMovie[]) => dispatch("setSelectedItems", value)}
-            onClose={() => dispatch("setQuery", "")}
+            onClose={() => {
+                dispatch("setQuery", "");
+                setOpen(false);
+            }}
         >
             <div className={"dropdown__select"} data-open={open}>
                 <ComboboxInput
                     aria-label="dropdown-select"
                     placeholder={"Type your word"}
                     onChange={(e) => dispatch("setQuery", e.target.value)}
+                    onFocus={() => setOpen(true)}
+                    onBlur={() => {
+                        setOpen(false);
+                        preventClick.current = true;
+                    }}
                     className={"w-full rounded-lg border-none bg-white/5 py-1.5 pr-8 pl-3 text-sm/6 text-white focus:not-data-focus:outline-none data-focus:outline-2 data-focus:-outline-offset-2 data-focus:outline-white/25"}
                 />
 
-                <span className={"group absolute inset-y-0 right-0 px-2.5 flex items-center justify-center"} style={{ height: "36px" }} onClick={() => setOpen(!open)}>
+                <span
+                    className={"group absolute inset-y-0 right-0 px-2.5 flex items-center justify-center"}
+                    style={{ height: "36px" }}
+                    onClick={() => {
+                        if(!preventClick.current)
+                            setOpen(!open);
+                        preventClick.current = false;
+                    }}
+                >
                     <ChevronDownIcon className="size-4 fill-white/60 group-data-hover:fill-white" />
                 </span>
 
-                <div className={"rounded-xl bg-white/5 p-2 dropdown__options"}>
-                    {
-                        !notFound
-                            ? <>
-                                <div
-                                    ref={parentRef}
-                                    className="max-h-[200px] overflow-auto"
-                                >
+                <ComboboxOptions static>
+                    <div className={"rounded-xl bg-white/5 p-2 dropdown__options"}>
+                        {
+                            !notFound
+                                ? <>
                                     <div
-                                        style={{
-                                            height: `${rowVirtualizer.getTotalSize()}px`,
-                                            position: 'relative',
-                                        }}
+                                        ref={parentRef}
+                                        className="max-h-[200px] overflow-auto"
                                     >
-                                        {
-                                            rowVirtualizer.getVirtualItems().map((virtualRow) => {
-                                                const item = virtualItems[virtualRow.index];
+                                        <div
+                                            style={{
+                                                height: `${rowVirtualizer.getTotalSize()}px`,
+                                                position: 'relative',
+                                            }}
+                                        >
+                                            {
+                                                rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                                                    const item = virtualItems[virtualRow.index];
 
-                                                return(
-                                                    <VirtualRow virtualRow={virtualRow} item={item} />
-                                                )
-                                            })
+                                                    return(
+                                                        <VirtualRow virtualRow={virtualRow} item={item} />
+                                                    )
+                                                })
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <div className="footer">
+                                        <CheckboxField
+                                            label={"Select all"}
+                                            checked={isSelectedAll}
+                                            onChange={selectAll}
+                                        />
+
+                                        {
+                                            selectedItems.length
+                                                ? <div className={"text-sm"}>
+                                                    {selectedItems.length}  Selected
+                                                </div>
+                                                : <></>
                                         }
                                     </div>
+                                </>
+                                : <div className="flex justify-center items-center py-5">
+                                    Not Found!
                                 </div>
-
-                                <div className="footer">
-                                    <CheckboxField
-                                        label={"Select all"}
-                                        checked={isSelectedAll}
-                                        onChange={selectAll}
-                                    />
-
-                                    {
-                                        selectedItems.length
-                                            ? <div className={"text-sm"}>
-                                                {selectedItems.length}  Selected
-                                            </div>
-                                            : <></>
-                                    }
-                                </div>
-                            </>
-                            : <div className="flex justify-center items-center py-5">
-                                Not Found!
-                        </div>
-                    }
-                </div>
+                        }
+                    </div>
+                </ComboboxOptions>
             </div>
         </Combobox>
     );
