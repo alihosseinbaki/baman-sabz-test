@@ -1,8 +1,7 @@
-import {ReactElement, useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {Combobox, ComboboxButton, ComboboxInput, ComboboxOption, ComboboxOptions} from "@headlessui/react";
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {Combobox, ComboboxInput, ComboboxOption} from "@headlessui/react";
 import {ChevronDownIcon} from "@heroicons/react/16/solid";
-import {List, type RowComponentProps} from "react-window";
-import type {GroupedMovies, IMovie, Item, RowComponentType, RowProps} from "./dropdown-select.types.ts";
+import type {GroupedMovies, IMovie, Item} from "./dropdown-select.types.ts";
 import {useDropdownSelect} from "./dropdown-select.provider.tsx";
 import {CheckIcon} from "@heroicons/react/20/solid";
 import clsx from "clsx";
@@ -13,18 +12,6 @@ import type {VirtualItem} from "@tanstack/virtual-core";
 
 const GROUP_HEIGHT = 28;
 const ITEM_HEIGHT = 36;
-
-function rowHeight(index: number, { items }: RowProps) {
-    switch (items[index].type) {
-        case "group": {
-            return GROUP_HEIGHT;
-        }
-        case "item": {
-            return ITEM_HEIGHT;
-        }
-    }
-}
-
 
 const VirtualRow = ({ virtualRow, item }: { virtualRow: VirtualItem, item: Item }) => {
     const {selectedItems} = useDropdownSelect();
