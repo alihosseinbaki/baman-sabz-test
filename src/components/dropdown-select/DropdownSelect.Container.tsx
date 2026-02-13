@@ -100,6 +100,12 @@ const DropdownSelectContainer = () => {
 
         return groupedMovies
             .map(group => {
+                const isGenreMatched = group.genre.toLowerCase().includes(lowerQuery);
+
+                if (isGenreMatched) {
+                    return group;
+                }
+
                 const matchedItems = group.items.filter(movie =>
                     movie.title.toLowerCase().includes(lowerQuery)
                 );
@@ -113,7 +119,6 @@ const DropdownSelectContainer = () => {
             })
             .filter((group): group is GroupedMovies => group !== null);
     }, [query, groupedMovies]);
-
 
     const virtualItems: Item[] = useMemo(() => {
         const result: Item[] = [];
@@ -161,7 +166,7 @@ const DropdownSelectContainer = () => {
         >
             <div className={"dropdown__select"} data-open={open}>
                 <ComboboxInput
-                    aria-label="Assignees"
+                    aria-label="dropdown-select"
                     placeholder={"Type your word"}
                     onChange={(e) => dispatch("setQuery", e.target.value)}
                     className={"w-full rounded-lg border-none bg-white/5 py-1.5 pr-8 pl-3 text-sm/6 text-white focus:not-data-focus:outline-none data-focus:outline-2 data-focus:-outline-offset-2 data-focus:outline-white/25"}
