@@ -22,6 +22,7 @@
     transform: scaleY(0.95);
     transform-origin: top;
     transition: max-height 0.15s ease-out, opacity 0.15s ease-out, transform 0.15s ease-out;
+    margin-top: 4px;
 
     .footer {
         display: flex;

@@ -130,6 +130,8 @@ const DropdownSelectContainer = () => {
     }, [filteredGroups]);
 
 
+    const notFound = useMemo(() => virtualItems.length === 0, [virtualItems])
+
     const rowVirtualizer = useVirtualizer({
         count: open ? virtualItems.length : 0,
         getScrollElement: () => parentRef.current,
@@ -169,44 +171,52 @@ const DropdownSelectContainer = () => {
                     <ChevronDownIcon className="size-4 fill-white/60 group-data-hover:fill-white" />
                 </span>
 
-                <div className={"rounded-xl bg-white/5 p-2 pe-0 dropdown__options"}>
-                    <div
-                        ref={parentRef}
-                        className="max-h-[200px] overflow-auto"
-                    >
-                        <div
-                            style={{
-                                height: `${rowVirtualizer.getTotalSize()}px`,
-                                position: 'relative',
-                            }}
-                        >
-                            {
-                                rowVirtualizer.getVirtualItems().map((virtualRow) => {
-                                    const item = virtualItems[virtualRow.index];
+                <div className={"rounded-xl bg-white/5 p-2 dropdown__options"}>
+                    {
+                        !notFound
+                            ? <>
+                                <div
+                                    ref={parentRef}
+                                    className="max-h-[200px] overflow-auto"
+                                >
+                                    <div
+                                        style={{
+                                            height: `${rowVirtualizer.getTotalSize()}px`,
+                                            position: 'relative',
+                                        }}
+                                    >
+                                        {
+                                            rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                                                const item = virtualItems[virtualRow.index];
 
-                                    return(
-                                        <VirtualRow virtualRow={virtualRow} item={item} />
-                                    )
-                                })
-                            }
-                        </div>
-                    </div>
-
-                    <div className="footer">
-                        <CheckboxField
-                            label={"Select all"}
-                            checked={isSelectedAll}
-                            onChange={selectAll}
-                        />
-
-                        {
-                            selectedItems.length
-                                ? <div className={"text-sm"}>
-                                    {selectedItems.length}  Selected
+                                                return(
+                                                    <VirtualRow virtualRow={virtualRow} item={item} />
+                                                )
+                                            })
+                                        }
+                                    </div>
                                 </div>
-                                : <></>
-                        }
-                    </div>
+
+                                <div className="footer">
+                                    <CheckboxField
+                                        label={"Select all"}
+                                        checked={isSelectedAll}
+                                        onChange={selectAll}
+                                    />
+
+                                    {
+                                        selectedItems.length
+                                            ? <div className={"text-sm"}>
+                                                {selectedItems.length}  Selected
+                                            </div>
+                                            : <></>
+                                    }
+                                </div>
+                            </>
+                            : <div className="flex justify-center items-center py-5">
+                                Not Found!
+                        </div>
+                    }
                 </div>
             </div>
         </Combobox>
