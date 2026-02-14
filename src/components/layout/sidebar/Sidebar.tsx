@@ -12,7 +12,11 @@ const Sidebar = () => {
                 </li>
 
                 <li>
-                    <Link className={"sidebar__link"} data-active={location.pathname === "/dropdown"} to="/dropdown">DropdownSelected</Link>
+                    <Link className={"sidebar__link"} data-active={location.pathname === "/dropdown"} to="/dropdown">Dropdown Select</Link>
+                </li>
+
+                <li>
+                    <Link className={"sidebar__link"} data-active={location.pathname === "/users"} to="/users">Users</Link>
                 </li>
             </ul>
         </aside>
