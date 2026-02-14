@@ -1,6 +1,6 @@
 .sidebar {
     min-height: calc(100vh);
-    background: #2f2f2f;
+    background: var(--chakra-colors-bg);
     overflow-x: hidden;
     padding: 7px;
 
@@ -12,8 +12,8 @@
 }
 
 .sidebar__link {
-    color: inherit;
-    background: transparent;
+    color: var(--chakra-colors-fg-muted);
+    background-color: transparent;
     font-size: 13px;
     width: 100%;
     max-width: 100%;
@@ -21,15 +21,20 @@
     align-items: center;
     gap: 4px;
     border-radius: 5px;
-    padding: 4px 6px;
+    padding: 6px 9px;
+
+    transition:
+            color .2s,
+            background-color .2s;
 
     &:hover {
-        background: #ffffff1a;
+        background-color: var(--chakra-colors-gray-subtle);
     }
 }
 
 .sidebar__link[data-active="true"] {
-    background: var(--primary-600);
+    background: var(--chakra-colors-color-palette-subtle);
+    color: var(--chakra-colors-color-palette-fg);
 }
 
 /* mobile devices */

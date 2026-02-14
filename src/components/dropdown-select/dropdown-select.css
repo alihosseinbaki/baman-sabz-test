@@ -36,7 +36,7 @@
 }
 
 .group-movies__title {
-    color: var(--primary);
+    color: var(--chakra-colors-color-palette-solid);
     text-align: start;
 }
 
